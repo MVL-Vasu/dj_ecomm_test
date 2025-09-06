@@ -43,9 +43,12 @@ if "VERCEL" in os.environ:
 else:
     DEBUG = True
 
-CSRF_TRUSTED_ORIGINS = [ 
-    "https://django-ecommerce-r628.onrender.com"
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.vercel.app",
+    "https://localhost",
+    "https://127.0.0.1",
 ]
+
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", "").split(",")
 
@@ -91,6 +94,7 @@ NPM_BIN_PATH=r"C:\Program Files\nodejs\npm.cmd"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -98,7 +102,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_browser_reload.middleware.BrowserReloadMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware"
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
