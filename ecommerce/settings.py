@@ -35,7 +35,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", cast=bool)
+# DEBUG = config("DEBUG", cast=bool)
+
+# SECURITY WARNING: don't run with debug turned on in production!
+if "VERCEL" in os.environ:
+    DEBUG = False
+else:
+    DEBUG = True
 
 CSRF_TRUSTED_ORIGINS = [ 
     "https://django-ecommerce-r628.onrender.com"
