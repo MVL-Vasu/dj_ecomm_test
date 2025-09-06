@@ -1,0 +1,561 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - TechStore{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-center">
+                <div class="flex items-center">
+                    <div class="flex items-center text-blue-600">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                            1
+                        </div>
+                        <span class="ml-2 text-sm font-medium">Cart</span>
+                    </div>
+                    <div class="w-16 h-1 bg-blue-600 mx-4"></div>
+                    <div class="flex items-center text-blue-600">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                            2
+                        </div>
+                        <span class="ml-2 text-sm font-medium">Checkout</span>
+                    </div>
+                    <div class="w-16 h-1 bg-gray-300 mx-4"></div>
+                    <div class="flex items-center text-gray-400">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-sm font-medium">
+                            3
+                        </div>
+                        <span class="ml-2 text-sm font-medium">Complete</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Checkout Form -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Checkout Information</h2>
+                
+                <form id="checkout-form" method="POST" action="{% url 'orders:process_checkout' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Contact Information -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Contact Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="billing_first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    First Name *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="billing_first_name" 
+                                    name="billing_first_name" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    value="{% if user.is_authenticated %}{{ user.first_name }}{% endif %}"
+                                >
+                            </div>
+                            <div>
+                                <label for="billing_last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Last Name *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="billing_last_name" 
+                                    name="billing_last_name" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    value="{% if user.is_authenticated %}{{ user.last_name }}{% endif %}"
+                                >
+                            </div>
+                            <div>
+                                <label for="billing_email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Email Address *
+                                </label>
+                                <input 
+                                    type="email" 
+                                    id="billing_email" 
+                                    name="billing_email" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    value="{% if user.is_authenticated %}{{ user.email }}{% endif %}"
+                                >
+                            </div>
+                            <div>
+                                <label for="billing_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Phone Number *
+                                </label>
+                                <input 
+                                    type="tel" 
+                                    id="billing_phone" 
+                                    name="billing_phone" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="+1 (555) 123-4567"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Billing Address -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Billing Address</h3>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label for="billing_address_line_1" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Address Line 1 *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="billing_address_line_1" 
+                                    name="billing_address_line_1" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="123 Main Street"
+                                >
+                            </div>
+                            <div>
+                                <label for="billing_address_line_2" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Address Line 2
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="billing_address_line_2" 
+                                    name="billing_address_line_2" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    placeholder="Apartment, suite, etc. (optional)"
+                                >
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="billing_city" class="block text-sm font-medium text-gray-700 mb-2">
+                                        City *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="billing_city" 
+                                        name="billing_city" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="billing_state" class="block text-sm font-medium text-gray-700 mb-2">
+                                        State/Province *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="billing_state" 
+                                        name="billing_state" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="billing_postal_code" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Postal Code *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="billing_postal_code" 
+                                        name="billing_postal_code" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                            </div>
+                            <div>
+                                <label for="billing_country" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Country *
+                                </label>
+                                <select 
+                                    id="billing_country" 
+                                    name="billing_country" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                >
+                                    <option value="">Select Country</option>
+                                    <option value="US" selected>United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="AU">Australia</option>
+                                    <!-- Add more countries as needed -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">Shipping Address</h3>
+                            <label class="flex items-center">
+                                <input 
+                                    type="checkbox" 
+                                    id="same_as_billing" 
+                                    name="same_as_billing" 
+                                    class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                                    onchange="toggleShippingAddress()"
+                                >
+                                <span class="ml-2 text-sm text-gray-600">Same as billing address</span>
+                            </label>
+                        </div>
+                        
+                        <div id="shipping-address-section" class="grid grid-cols-1 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="shipping_first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                        First Name *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="shipping_first_name" 
+                                        name="shipping_first_name" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="shipping_last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Last Name *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="shipping_last_name" 
+                                        name="shipping_last_name" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                            </div>
+                            <div>
+                                <label for="shipping_address_line_1" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Address Line 1 *
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="shipping_address_line_1" 
+                                    name="shipping_address_line_1" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                >
+                            </div>
+                            <div>
+                                <label for="shipping_address_line_2" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Address Line 2
+                                </label>
+                                <input 
+                                    type="text" 
+                                    id="shipping_address_line_2" 
+                                    name="shipping_address_line_2" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                >
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label for="shipping_city" class="block text-sm font-medium text-gray-700 mb-2">
+                                        City *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="shipping_city" 
+                                        name="shipping_city" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="shipping_state" class="block text-sm font-medium text-gray-700 mb-2">
+                                        State/Province *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="shipping_state" 
+                                        name="shipping_state" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="shipping_postal_code" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Postal Code *
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="shipping_postal_code" 
+                                        name="shipping_postal_code" 
+                                        required 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                            </div>
+                            <div>
+                                <label for="shipping_country" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Country *
+                                </label>
+                                <select 
+                                    id="shipping_country" 
+                                    name="shipping_country" 
+                                    required 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                >
+                                    <option value="">Select Country</option>
+                                    <option value="US" selected>United States</option>
+                                    <option value="CA">Canada</option>
+                                    <option value="UK">United Kingdom</option>
+                                    <option value="AU">Australia</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Payment Method</h3>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div class="border border-gray-300 rounded-lg p-4">
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        name="payment_method" 
+                                        value="card" 
+                                        class="text-blue-600" 
+                                        checked
+                                    >
+                                    <span class="ml-3 text-sm font-medium text-gray-700">Credit/Debit Card</span>
+                                    <div class="ml-auto flex space-x-2">
+                                        <i class="fab fa-cc-visa text-2xl text-blue-600"></i>
+                                        <i class="fab fa-cc-mastercard text-2xl text-red-600"></i>
+                                        <i class="fab fa-cc-amex text-2xl text-blue-500"></i>
+                                    </div>
+                                </label>
+                                <div class="mt-4 grid grid-cols-1 gap-4">
+                                    <div>
+                                        <label for="card_number" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Card Number *
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="card_number" 
+                                            name="card_number" 
+                                            required 
+                                            placeholder="1234 5678 9012 3456"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                        >
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label for="card_expiry" class="block text-sm font-medium text-gray-700 mb-2">
+                                                Expiry Date *
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="card_expiry" 
+                                                name="card_expiry" 
+                                                required 
+                                                placeholder="MM/YY"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                            >
+                                        </div>
+                                        <div>
+                                            <label for="card_cvc" class="block text-sm font-medium text-gray-700 mb-2">
+                                                CVC *
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                id="card_cvc" 
+                                                name="card_cvc" 
+                                                required 
+                                                placeholder="123"
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border border-gray-300 rounded-lg p-4">
+                                <label class="flex items-center">
+                                    <input 
+                                        type="radio" 
+                                        name="payment_method" 
+                                        value="paypal" 
+                                        class="text-blue-600"
+                                    >
+                                    <span class="ml-3 text-sm font-medium text-gray-700">PayPal</span>
+                                    <i class="fab fa-paypal text-2xl text-blue-600 ml-auto"></i>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="mb-6">
+                        <label for="order_notes" class="block text-sm font-medium text-gray-700 mb-2">
+                            Order Notes (Optional)
+                        </label>
+                        <textarea 
+                            id="order_notes" 
+                            name="order_notes" 
+                            rows="3" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                            placeholder="Any special instructions for your order..."
+                        ></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-white rounded-lg shadow-md p-6 h-fit">
+                <h2 class="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                
+                <!-- Cart Items -->
+                <div class="space-y-4 mb-6">
+                    {% for item in cart.items.all %}
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            {% if item.product.images.first %}
+                                <img 
+                                    src="{{ item.product.images.first.image.url }}" 
+                                    alt="{{ item.product.name }}"
+                                    class="w-16 h-16 object-cover rounded-md"
+                                >
+                            {% else %}
+                                <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                                {{ item.quantity }}
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-sm font-medium text-gray-900">{{ item.product.name }}</h4>
+                            <p class="text-sm text-gray-600">${{ item.product.price }}</p>
+                        </div>
+                        <div class="text-sm font-medium text-gray-900">
+                            ${{ item.total_price }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Price Breakdown -->
+                <div class="border-t border-gray-200 pt-4">
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Subtotal</span>
+                        <span>${{ cart.total_price }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-2">
+                        <span>Shipping</span>
+                        <span>$9.99</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mb-4">
+                        <span>Tax</span>
+                        <span id="tax-amount">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold text-gray-900 border-t border-gray-200 pt-4">
+                        <span>Total</span>
+                        <span id="total-amount">$0.00</span>
+                    </div>
+                </div>
+
+                <!-- Place Order Button -->
+                <button 
+                    type="submit" 
+                    form="checkout-form"
+                    class="w-full mt-6 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                >
+                    Place Order
+                </button>
+
+                <!-- Security Notice -->
+                <div class="mt-4 flex items-center justify-center text-sm text-gray-600">
+                    <i class="fas fa-lock mr-2"></i>
+                    <span>Your payment information is secure and encrypted</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleShippingAddress() {
+    const checkbox = document.getElementById('same_as_billing');
+    const shippingSection = document.getElementById('shipping-address-section');
+    const shippingInputs = shippingSection.querySelectorAll('input[required], select[required]');
+    
+    if (checkbox.checked) {
+        shippingSection.style.opacity = '0.5';
+        shippingSection.style.pointerEvents = 'none';
+        
+        // Copy billing to shipping
+        document.getElementById('shipping_first_name').value = document.getElementById('billing_first_name').value;
+        document.getElementById('shipping_last_name').value = document.getElementById('billing_last_name').value;
+        document.getElementById('shipping_address_line_1').value = document.getElementById('billing_address_line_1').value;
+        document.getElementById('shipping_address_line_2').value = document.getElementById('billing_address_line_2').value;
+        document.getElementById('shipping_city').value = document.getElementById('billing_city').value;
+        document.getElementById('shipping_state').value = document.getElementById('billing_state').value;
+        document.getElementById('shipping_postal_code').value = document.getElementById('billing_postal_code').value;
+        document.getElementById('shipping_country').value = document.getElementById('billing_country').value;
+        
+        // Remove required attribute
+        shippingInputs.forEach(input => {
+            input.removeAttribute('required');
+        });
+    } else {
+        shippingSection.style.opacity = '1';
+        shippingSection.style.pointerEvents = 'auto';
+        
+        // Add required attribute back
+        shippingInputs.forEach(input => {
+            if (input.id !== 'shipping_address_line_2') {
+                input.setAttribute('required', '');
+            }
+        });
+    }
+}
+
+// Format card number input
+document.getElementById('card_number').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.substring(0, 16);
+    value = value.replace(/(.{4})/g, '$1 ').trim();
+    e.target.value = value;
+});
+
+// Format expiry date input
+document.getElementById('card_expiry').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value;
+});
+
+// Format CVC input
+document.getElementById('card_cvc').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    value = value.substring(0, 4);
+    e.target.value = value;
+});
+
+// Calculate totals
+function calculateTotals() {
+    const subtotal = {{ cart.total_price }};
+    const shipping = 9.99;
+    const taxRate = 0.08;
+    const tax = (subtotal + shipping) * taxRate;
+    const total = subtotal + shipping + tax;
+    
+    document.getElementById('tax-amount').textContent = '$' + tax.toFixed(2);
+    document.getElementById('total-amount').textContent = '$' + total.toFixed(2);
+}
+
+// Calculate on page load
+document.addEventListener('DOMContentLoaded', calculateTotals);
+</script>
+{% endblock %}

@@ -1,0 +1,634 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Shopping Cart -
+ShopHub{% endblock %} {% block content %}
+<div class="container mx-auto px-4 py-8">
+     <!-- Breadcrumb -->
+     <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+          <a href="{% url 'products:home' %}" class="hover:text-primary-600"
+               >Home</a
+          >
+          <i class="fas fa-chevron-right text-xs"></i>
+          <span class="text-gray-400">Shopping Cart</span>
+     </nav>
+
+     <!-- Cart Header -->
+     <div class="flex items-center justify-between mb-8">
+          <h1 class="text-3xl md:text-4xl font-bold text-gray-800">
+               Shopping Cart
+          </h1>
+          <div class="flex items-center space-x-2 text-gray-600">
+               <i class="fas fa-shopping-cart"></i>
+               <span>
+                    {{ cart.total_items }} item{{ cart.total_items|pluralize}}
+               </span>
+          </div>
+     </div>
+
+     {% if cart.items.all %}
+     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <!-- Cart Items -->
+          <div class="lg:col-span-2 space-y-6">
+               <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                         <h2 class="text-xl font-semibold text-gray-800">
+                              Cart Items
+                         </h2>
+                    </div>
+
+                    <div class="divide-y divide-gray-200">
+                         {% for item in cart.items.all %}
+                         <div
+                              class="p-4 md:p-6 flex flex-col md:flex-row md:items-start space-y-4 md:space-y-0 md:space-x-4"
+                              id="cart-item-{{ item.id }}"
+                         >
+                              <!-- Product Image -->
+                              <div class="flex-shrink-0 md:w-auto w-full flex justify-center md:justify-start">
+                                   <a href="{{ item.product.get_absolute_url }}" class="block">
+                                        {% with primary_image=item.product.get_primary_image %}
+                                            {% if primary_image %}
+                                                <img
+                                                     src="{{ primary_image.url }}"
+                                                     alt="{{ item.product.name }}"
+                                                     class="w-24 h-24 md:w-20 md:h-20 object-cover rounded-lg shadow-sm"
+                                                />
+                                            {% else %}
+                                                <div class="w-24 h-24 md:w-20 md:h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                     <i class="fas fa-image text-gray-400"></i>
+                                                </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                   </a>
+                              </div>
+
+                              <!-- Product Details -->
+                              <div class="flex-1 min-w-0">
+                                   <div class="flex flex-col md:flex-row md:items-start md:justify-between space-y-4 md:space-y-0">
+                                        <div class="flex-1">
+                                             <h3
+                                                  class="text-lg font-semibold text-gray-800 mb-1"
+                                             >
+                                                  <a
+                                                       href="{{ item.product.get_absolute_url }}"
+                                                       class="hover:text-primary-600"
+                                                  >
+                                                       {{ item.product.name }}
+                                                  </a>
+                                             </h3>
+                                             <p class="text-sm text-gray-600 mb-2">
+                                                  {{ item.product.category.name}}
+                                             </p>
+
+                                             <!-- Product badges -->
+                                             <div
+                                                  class="flex items-center space-x-2 mb-3"
+                                             >
+                                                  {% if item.product.is_in_stock %}
+                                                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                       <i class="fas fa-check mr-1"></i>In Stock
+                                                  </span>
+                                                  {% else %}
+                                                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                       <i class="fas fa-times mr-1"></i>Out of Stock
+                                                  </span>
+                                                  {% endif %}
+                                             </div>
+
+                                             <!-- Quantity Controls -->
+                                             <div
+                                                  class="flex items-center space-x-3"
+                                             >
+                                                  <label
+                                                       class="text-sm text-gray-600"
+                                                       >Qty:</label
+                                                  >
+                                                  <div
+                                                       class="flex items-center border border-gray-300 rounded-lg"
+                                                  >
+                                                       <button
+                                                            onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'-1' }})"
+                                                            class="px-3 py-1 hover:bg-gray-100 transition-colors rounded-l-lg"
+                                                            {% if item.quantity <= 1 %}disabled{% endif %}
+                                                       >
+                                                            <i class="fas fa-minus text-sm"></i>
+                                                       </button>
+                                                       <input
+                                                            type="number"
+                                                            value="{{ item.quantity }}"
+                                                            min="1"
+                                                            max="{{ item.product.stock_quantity }}"
+                                                            class="w-16 text-center border-0 focus:ring-0 py-1 bg-gray-50"
+                                                            onchange="updateQuantity({{ item.id }}, this.value)"
+                                                            id="quantity-{{ item.id }}"
+                                                       />
+                                                       <button
+                                                            onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'1' }})"
+                                                            class="px-3 py-1 hover:bg-gray-100 transition-colors rounded-r-lg"
+                                                            {% if item.quantity >= item.product.stock_quantity %}disabled{% endif %}
+                                                       >
+                                                            <i class="fas fa-plus text-sm"></i>
+                                                       </button>
+                                                  </div>
+                                                  <span class="text-xs text-gray-500">
+                                                       {{item.product.stock_quantity }} available
+                                                  </span>
+                                             </div>
+                                        </div>
+
+                                        <!-- Price and Actions -->
+                                        <div class="text-center md:text-right">
+                                             <div class="text-xl font-bold text-blue-600 mb-2">
+                                                  ${{ item.total_price }}
+                                             </div>
+                                             <div class="text-sm text-gray-600 mb-4">
+                                                  ${{ item.product.price }} each
+                                             </div>
+
+                                             <!-- Action Buttons -->
+                                             {% comment %} <div class="flex flex-col space-y-2">
+                                                  <button
+                                                       onclick="removeItem({{ item.id }})"
+                                                       class="text-red-600 hover:text-white hover:bg-red-600 cursor-pointer text-sm font-medium flex items-center justify-center "
+                                                  >
+                                                       <i class="fas fa-trash mr-1"></i>Remove
+                                                  </button>
+                                                  <button class="text-gray-600 hover:text-blue-600 text-sm font-medium flex items-center justify-center md:justify-end">
+                                                       <i class="fas fa-heart mr-1"></i>Save for Later
+                                                  </button>
+                                             </div> {% endcomment %}
+                                        </div>
+                                   </div>
+                                    <!-- Action Buttons -->
+                                   <div class="flex items-center gap-2 mt-2">
+                                        <button
+                                             onclick="removeItem({{ item.id }})"
+                                             class="text-red-600 hover:text-white hover:bg-red-600 cursor-pointer duration-200 px-2.5 rounded py-1.5 text-sm font-medium flex items-center justify-center "
+                                        >
+                                             <i class="fas fa-trash mr-1"></i>Remove
+                                        </button>
+                                        <button class="text-blue-600 hover:text-white hover:bg-blue-600 cursor-pointer duration-200 px-2.5 py-1.5 rounded text-sm font-medium flex items-center justify-center md:justify-end">
+                                             <i class="fas fa-heart mr-1"></i>Save for Later
+                                        </button>
+                                   </div>
+                              </div>
+                         </div>
+                         {% endfor %}
+                    </div>
+
+                    <!-- Cart Actions -->
+                    <div class="p-6 border-t border-gray-200 bg-gray-50">
+                         <div
+                              class="flex flex-col sm:flex-row gap-4 justify-between items-center"
+                         >
+                              <a
+                                   href="{% url 'products:home' %}"
+                                   class="btn btn-outline"
+                              >
+                                   <i class="fas fa-arrow-left mr-2"></i
+                                   >Continue Shopping
+                              </a>
+                              <button
+                                   onclick="clearCart()"
+                                   class="text-red-600 hover:text-red-700 font-medium"
+                              >
+                                   <i class="fas fa-trash mr-2"></i>Clear Cart
+                              </button>
+                         </div>
+                    </div>
+               </div>
+
+               <!-- Shipping Calculator -->
+               <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                         Calculate Shipping
+                    </h3>
+                    <form class="space-y-4">
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div>
+                                   <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                                   <select class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                                        <option>United States</option>
+                                        <option>Canada</option>
+                                        <option>United Kingdom</option>
+                                   </select>
+                              </div>
+                              <div>
+                                   <label class="block text-sm font-medium text-gray-700 mb-2">ZIP/Postal Code</label>
+                                   <input
+                                        type="text"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter ZIP code"
+                                   />
+                              </div>
+                         </div>
+                         <button type="submit" class="btn btn-outline">
+                              <i class="fas fa-calculator mr-2"></i>Calculate
+                              Shipping
+                         </button>
+                    </form>
+               </div>
+
+               <!-- Coupon Code -->
+               <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                         Discount Code
+                    </h3>
+                    <form class="flex gap-4">
+                         <input
+                              type="text"
+                              class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="Enter coupon code"
+                         />
+                         <button type="submit" class="btn btn-outline">
+                              <i class="fas fa-tag mr-2"></i>Apply
+                         </button>
+                    </form>
+               </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="lg:col-span-1">
+               <div class="bg-white rounded-lg shadow-md sticky top-24">
+                    <div class="p-6 border-b border-gray-200">
+                         <h2 class="text-xl font-semibold text-gray-800">
+                              Order Summary
+                         </h2>
+                    </div>
+
+                    <div class="p-6 space-y-4">
+                         <!-- Subtotal -->
+                         <div class="flex justify-between items-center">
+                              <span class="text-gray-600"
+                                   >Subtotal ({{ cart.total_items }}
+                                   items)</span
+                              >
+                              <span class="font-semibold"
+                                   >${{ cart.subtotal }}</span
+                              >
+                         </div>
+
+                         <!-- Shipping -->
+                         <div class="flex justify-between items-center">
+                              <span class="text-gray-600">Shipping</span>
+                              <span class="font-semibold text-green-600"
+                                   >FREE</span
+                              >
+                         </div>
+
+                         <!-- Tax -->
+                         <div class="flex justify-between items-center">
+                              <span class="text-gray-600">Estimated Tax</span>
+                              <span class="font-semibold"
+                                   >${{ cart.subtotal|floatformat:2 }}</span
+                              >
+                         </div>
+
+                         <hr class="border-gray-200" />
+
+                         <!-- Total -->
+                         <div class="flex justify-between items-center text-lg">
+                              <span class="font-semibold text-gray-800"
+                                   >Total</span
+                              >
+                              <span class="font-bold text-2xl text-primary-600"
+                                   >${{ cart.total_price }}</span
+                              >
+                         </div>
+
+                         <!-- Savings -->
+                         <div
+                              class="bg-green-50 border border-green-200 rounded-lg p-3"
+                         >
+                              <div class="flex items-center text-green-800">
+                                   <i class="fas fa-piggy-bank mr-2"></i>
+                                   <span class="text-sm"
+                                        >You saved $15.00 with free
+                                        shipping!</span
+                                   >
+                              </div>
+                         </div>
+
+                         <!-- Checkout Button -->
+                         <button
+                              onclick="proceedToCheckout()"
+                              class="w-full btn btn-primary py-4 text-lg font-bold"
+                         >
+                              <i class="fas fa-lock mr-2"></i>Proceed to
+                              Checkout
+                         </button>
+
+                         <!-- Payment Methods -->
+                         <div class="text-center">
+                              <p class="text-sm text-gray-600 mb-3">
+                                   We accept:
+                              </p>
+                              <div class="flex justify-center space-x-3">
+                                   <i
+                                        class="fab fa-cc-visa text-2xl text-blue-600"
+                                   ></i>
+                                   <i
+                                        class="fab fa-cc-mastercard text-2xl text-red-600"
+                                   ></i>
+                                   <i
+                                        class="fab fa-cc-amex text-2xl text-green-600"
+                                   ></i>
+                                   <i
+                                        class="fab fa-cc-paypal text-2xl text-blue-500"
+                                   ></i>
+                                   <i
+                                        class="fab fa-apple-pay text-2xl text-gray-800"
+                                   ></i>
+                                   <i
+                                        class="fab fa-google-pay text-2xl text-green-500"
+                                   ></i>
+                              </div>
+                         </div>
+
+                         <!-- Trust Badges -->
+                         <div
+                              class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200"
+                         >
+                              <div class="text-center">
+                                   <i
+                                        class="fas fa-shield-alt text-2xl text-green-600 mb-2"
+                                   ></i>
+                                   <p class="text-xs text-gray-600">
+                                        Secure Payment
+                                   </p>
+                              </div>
+                              <div class="text-center">
+                                   <i
+                                        class="fas fa-truck text-2xl text-blue-600 mb-2"
+                                   ></i>
+                                   <p class="text-xs text-gray-600">
+                                        Free Shipping
+                                   </p>
+                              </div>
+                              <div class="text-center">
+                                   <i
+                                        class="fas fa-undo text-2xl text-purple-600 mb-2"
+                                   ></i>
+                                   <p class="text-xs text-gray-600">
+                                        Easy Returns
+                                   </p>
+                              </div>
+                              <div class="text-center">
+                                   <i
+                                        class="fas fa-headset text-2xl text-orange-600 mb-2"
+                                   ></i>
+                                   <p class="text-xs text-gray-600">
+                                        24/7 Support
+                                   </p>
+                              </div>
+                         </div>
+                    </div>
+               </div>
+
+               <!-- Recently Viewed -->
+               <div class="bg-white rounded-lg shadow-md mt-6 p-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                         You might also like
+                    </h3>
+                    <div class="space-y-4">
+                         {% for i in "123" %}
+                         <div class="flex items-center space-x-3 group">
+                              <div
+                                   class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center group-hover:bg-gray-300 transition-colors"
+                              >
+                                   <i class="fas fa-image text-gray-400"></i>
+                              </div>
+                              <div class="flex-1">
+                                   <h4
+                                        class="font-medium text-gray-800 group-hover:text-primary-600"
+                                   >
+                                        Related Product {{ i }}
+                                   </h4>
+                                   <p class="text-sm text-gray-600">$29.99</p>
+                              </div>
+                              <button class="btn btn-outline text-xs">
+                                   Add
+                              </button>
+                         </div>
+                         {% endfor %}
+                    </div>
+               </div>
+          </div>
+     </div>
+
+     {% else %}
+     <!-- Empty Cart -->
+     <div class="text-center py-16">
+          <div class="max-w-md mx-auto">
+               <i class="fas fa-shopping-cart text-8xl text-gray-300 mb-8"></i>
+               <h2 class="text-3xl font-bold text-gray-600 mb-4">
+                    Your cart is empty
+               </h2>
+               <p class="text-gray-500 mb-8 text-lg">
+                    Looks like you haven't added any items to your cart yet.
+                    Start shopping to fill it up!
+               </p>
+
+               <!-- Quick Actions -->
+               <div class="space-y-4">
+                    <a
+                         href="{% url 'products:home' %}"
+                         class="btn btn-primary text-lg px-8 py-4"
+                    >
+                         <i class="fas fa-shopping-bag mr-2"></i>Start Shopping
+                    </a>
+                    <div class="flex justify-center space-x-4">
+                         <a
+                              href="{% url 'products:categories' %}"
+                              class="text-primary-600 hover:text-primary-700 font-medium"
+                         >
+                              <i class="fas fa-th-large mr-1"></i>Browse
+                              Categories
+                         </a>
+                         <a
+                              href="#"
+                              class="text-primary-600 hover:text-primary-700 font-medium"
+                         >
+                              <i class="fas fa-heart mr-1"></i>View Wishlist
+                         </a>
+                    </div>
+               </div>
+
+               <!-- Featured Categories -->
+               <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                    <div class="text-center group cursor-pointer">
+                         <div
+                              class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-primary-200 transition-colors"
+                         >
+                              <i
+                                   class="fas fa-laptop text-2xl text-primary-600"
+                              ></i>
+                         </div>
+                         <h3 class="font-medium text-gray-800">Electronics</h3>
+                    </div>
+                    <div class="text-center group cursor-pointer">
+                         <div
+                              class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-green-200 transition-colors"
+                         >
+                              <i
+                                   class="fas fa-tshirt text-2xl text-green-600"
+                              ></i>
+                         </div>
+                         <h3 class="font-medium text-gray-800">Fashion</h3>
+                    </div>
+                    <div class="text-center group cursor-pointer">
+                         <div
+                              class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-blue-200 transition-colors"
+                         >
+                              <i class="fas fa-home text-2xl text-blue-600"></i>
+                         </div>
+                         <h3 class="font-medium text-gray-800">
+                              Home & Garden
+                         </h3>
+                    </div>
+               </div>
+          </div>
+     </div>
+     {% endif %}
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+     // Update item quantity
+     function updateQuantity(itemId, newQuantity) {
+         if (newQuantity < 1) return;
+
+         fetch(`/cart/update/${itemId}/`, {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+             },
+             body: JSON.stringify({
+                 'quantity': parseInt(newQuantity)
+             })
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 location.reload(); // Reload to update all prices
+             } else {
+                 showMessage('Error updating quantity', 'error');
+             }
+         })
+         .catch(error => {
+             console.error('Error:', error);
+             showMessage('Error updating quantity', 'error');
+         });
+     }
+
+     // Remove item from cart
+     function removeItem(itemId) {
+         if (!confirm('Are you sure you want to remove this item from your cart?')) {
+             return;
+         }
+
+         fetch(`/cart/remove/${itemId}/`, {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+             }
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 const itemElement = document.getElementById(`cart-item-${itemId}`);
+                 itemElement.style.opacity = '0';
+                 itemElement.style.transform = 'translateX(-100%)';
+                 setTimeout(() => {
+                     location.reload();
+                 }, 300);
+                 showMessage('Item removed from cart', 'success');
+             } else {
+                 showMessage('Error removing item', 'error');
+             }
+         })
+         .catch(error => {
+             console.error('Error:', error);
+             showMessage('Error removing item', 'error');
+         });
+     }
+
+     // Clear entire cart
+     function clearCart() {
+         if (!confirm('Are you sure you want to clear your entire cart?')) {
+             return;
+         }
+
+         fetch('/cart/clear/', {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+             }
+         })
+         .then(response => response.json())
+         .then(data => {
+             if (data.success) {
+                 location.reload();
+                 showMessage('Cart cleared successfully', 'success');
+             } else {
+                 showMessage('Error clearing cart', 'error');
+             }
+         })
+         .catch(error => {
+             console.error('Error:', error);
+             showMessage('Error clearing cart', 'error');
+         });
+     }
+
+     // Proceed to checkout
+     function proceedToCheckout() {
+         {% if user.is_authenticated %}
+             window.location.href = '{% url "orders:checkout" %}';
+         {% else %}
+             if (confirm('You need to log in to proceed with checkout. Would you like to log in now?')) {
+                 window.location.href = '{% url "accounts:login" %}?next={% url "orders:checkout" %}';
+             }
+         {% endif %}
+     }
+
+     // Message display function
+     function showMessage(message, type) {
+         const alertDiv = document.createElement('div');
+         alertDiv.className = `alert alert-${type} fixed top-20 right-4 z-50 flex items-center p-4 rounded-lg shadow-lg transition-all duration-300 ${
+             type === 'success' ? 'bg-green-50 text-green-700 border border-green-200' :
+             'bg-red-50 text-red-700 border border-red-200'
+         }`;
+
+         alertDiv.innerHTML = `
+             <span class="flex items-center">
+                 <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} mr-2"></i>
+                 ${message}
+             </span>
+             <button class="ml-4 text-current hover:opacity-75" onclick="this.parentElement.remove()">
+                 <i class="fas fa-times"></i>
+             </button>
+         `;
+
+         document.body.appendChild(alertDiv);
+
+         setTimeout(() => {
+             alertDiv.style.opacity = '0';
+             setTimeout(() => alertDiv.remove(), 300);
+         }, 3000);
+     }
+
+     // Auto-save cart on quantity change
+     document.addEventListener('DOMContentLoaded', function() {
+         const quantityInputs = document.querySelectorAll('input[type="number"]');
+         quantityInputs.forEach(input => {
+             let timeout;
+             input.addEventListener('input', function() {
+                 clearTimeout(timeout);
+                 timeout = setTimeout(() => {
+                     const itemId = this.id.replace('quantity-', '');
+                     updateQuantity(itemId, this.value);
+                 }, 1000); // Wait 1 second after user stops typing
+             });
+         });
+     });
+</script>
+{% endblock %}

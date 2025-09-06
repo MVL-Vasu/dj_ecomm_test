@@ -1,0 +1,466 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - TechStore{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Profile Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <div class="flex items-center space-x-6">
+                <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+                    {{ user.first_name|first|default:user.username|first }}{{ user.last_name|first|default:"" }}
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        {{ user.get_full_name|default:user.username }}
+                    </h1>
+                    <p class="text-gray-600 mt-1">{{ user.email }}</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Member since {{ user.date_joined|date:"F Y" }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Sidebar Navigation -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <nav class="space-y-2">
+                        <a href="#profile-info" class="profile-nav-link active flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+                            <i class="fas fa-user mr-3"></i>
+                            Personal Information
+                        </a>
+                        <a href="#account-settings" class="profile-nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+                            <i class="fas fa-cog mr-3"></i>
+                            Account Settings
+                        </a>
+                        <a href="#security" class="profile-nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+                            <i class="fas fa-shield-alt mr-3"></i>
+                            Security
+                        </a>
+                        <a href="#addresses" class="profile-nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+                            <i class="fas fa-map-marker-alt mr-3"></i>
+                            Addresses
+                        </a>
+                        <a href="#preferences" class="profile-nav-link flex items-center px-3 py-2 text-sm font-medium rounded-lg">
+                            <i class="fas fa-palette mr-3"></i>
+                            Preferences
+                        </a>
+                        <a href="{% url 'orders:order_history' %}" class="flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                            <i class="fas fa-shopping-bag mr-3"></i>
+                            Order History
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="lg:col-span-3 space-y-8">
+                <!-- Personal Information -->
+                <div id="profile-info" class="profile-section bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Personal Information</h2>
+                        <button class="edit-btn text-blue-600 hover:text-blue-700 font-medium">
+                            <i class="fas fa-edit mr-2"></i>Edit
+                        </button>
+                    </div>
+                    
+                    <form id="profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {% csrf_token %}
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                First Name
+                            </label>
+                            <input 
+                                type="text" 
+                                id="first_name" 
+                                name="first_name" 
+                                value="{{ user.first_name }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                readonly
+                            >
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">
+                                Last Name
+                            </label>
+                            <input 
+                                type="text" 
+                                id="last_name" 
+                                name="last_name" 
+                                value="{{ user.last_name }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                readonly
+                            >
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                Email Address
+                            </label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                value="{{ user.email }}"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                readonly
+                            >
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                Phone Number
+                            </label>
+                            <input 
+                                type="tel" 
+                                id="phone" 
+                                name="phone" 
+                                placeholder="Add phone number"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                readonly
+                            >
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="bio" class="block text-sm font-medium text-gray-700 mb-2">
+                                Bio (Optional)
+                            </label>
+                            <textarea 
+                                id="bio" 
+                                name="bio" 
+                                rows="3" 
+                                placeholder="Tell us about yourself"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                readonly
+                            ></textarea>
+                        </div>
+                        <div class="md:col-span-2 hidden" id="profile-actions">
+                            <div class="flex space-x-4">
+                                <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                    Save Changes
+                                </button>
+                                <button type="button" class="cancel-btn px-6 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Account Settings -->
+                <div id="account-settings" class="profile-section bg-white rounded-lg shadow-sm border border-gray-200 p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Account Settings</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Email Notifications -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Email Notifications</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                    <span class="ml-3 text-sm text-gray-700">Order updates and tracking</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-3 text-sm text-gray-700">Special offers and promotions</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-3 text-sm text-gray-700">Product recommendations</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                    <span class="ml-3 text-sm text-gray-700">Security alerts</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Privacy Settings -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Privacy Settings</h3>
+                            <div class="space-y-3">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                                    <span class="ml-3 text-sm text-gray-700">Make my profile public</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" checked>
+                                    <span class="ml-3 text-sm text-gray-700">Allow order history to be visible</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            Save Settings
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Security -->
+                <div id="security" class="profile-section bg-white rounded-lg shadow-sm border border-gray-200 p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Security</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Change Password -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
+                            <form class="space-y-4">
+                                <div>
+                                    <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Current Password
+                                    </label>
+                                    <input 
+                                        type="password" 
+                                        id="current_password" 
+                                        name="current_password" 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="new_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                        New Password
+                                    </label>
+                                    <input 
+                                        type="password" 
+                                        id="new_password" 
+                                        name="new_password" 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Confirm New Password
+                                    </label>
+                                    <input 
+                                        type="password" 
+                                        id="confirm_password" 
+                                        name="confirm_password" 
+                                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                                    >
+                                </div>
+                                <button type="submit" class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Two-Factor Authentication -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-medium text-gray-900">Two-Factor Authentication</h3>
+                                    <p class="text-sm text-gray-600 mt-1">Add an extra layer of security to your account</p>
+                                </div>
+                                <button class="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
+                                    Enable
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Login Sessions -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Active Sessions</h3>
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between py-3 px-4 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <i class="fas fa-desktop text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Windows PC - Chrome</div>
+                                            <div class="text-xs text-gray-500">Current session • New York, USA</div>
+                                        </div>
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Current
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Addresses -->
+                <div id="addresses" class="profile-section bg-white rounded-lg shadow-sm border border-gray-200 p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Saved Addresses</h2>
+                        <button class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add Address
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Default Address -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h3 class="text-lg font-medium text-gray-900">Home</h3>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Default
+                                </span>
+                            </div>
+                            <div class="text-sm text-gray-600 space-y-1">
+                                <div>John Doe</div>
+                                <div>123 Main Street</div>
+                                <div>Apartment 4B</div>
+                                <div>New York, NY 10001</div>
+                                <div>United States</div>
+                            </div>
+                            <div class="mt-4 flex space-x-2">
+                                <button class="text-sm text-blue-600 hover:text-blue-700 font-medium">Edit</button>
+                                <button class="text-sm text-red-600 hover:text-red-700 font-medium">Delete</button>
+                            </div>
+                        </div>
+
+                        <!-- Add New Address Card -->
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center text-center hover:border-blue-300 transition-colors">
+                            <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                                <i class="fas fa-plus text-gray-400"></i>
+                            </div>
+                            <h3 class="text-sm font-medium text-gray-900 mb-1">Add New Address</h3>
+                            <p class="text-xs text-gray-500">Save addresses for faster checkout</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preferences -->
+                <div id="preferences" class="profile-section bg-white rounded-lg shadow-sm border border-gray-200 p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-semibold text-gray-900">Preferences</h2>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Theme -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Theme</h3>
+                            <div class="grid grid-cols-3 gap-4">
+                                <label class="flex flex-col items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-300">
+                                    <input type="radio" name="theme" value="light" class="sr-only" checked>
+                                    <div class="w-8 h-8 bg-white border border-gray-300 rounded mb-2"></div>
+                                    <span class="text-sm font-medium">Light</span>
+                                </label>
+                                <label class="flex flex-col items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-300">
+                                    <input type="radio" name="theme" value="dark" class="sr-only">
+                                    <div class="w-8 h-8 bg-gray-800 rounded mb-2"></div>
+                                    <span class="text-sm font-medium">Dark</span>
+                                </label>
+                                <label class="flex flex-col items-center p-3 border border-gray-300 rounded-lg cursor-pointer hover:border-blue-300">
+                                    <input type="radio" name="theme" value="auto" class="sr-only">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-white to-gray-800 rounded mb-2"></div>
+                                    <span class="text-sm font-medium">Auto</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Language -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Language</h3>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="en" selected>English (US)</option>
+                                <option value="es">Español</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                            </select>
+                        </div>
+
+                        <!-- Currency -->
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Currency</h3>
+                            <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="USD" selected>US Dollar (USD)</option>
+                                <option value="EUR">Euro (EUR)</option>
+                                <option value="GBP">British Pound (GBP)</option>
+                                <option value="CAD">Canadian Dollar (CAD)</option>
+                            </select>
+                        </div>
+
+                        <button class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            Save Preferences
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Navigation functionality
+    const navLinks = document.querySelectorAll('.profile-nav-link');
+    const sections = document.querySelectorAll('.profile-section');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all nav links
+            navLinks.forEach(nl => nl.classList.remove('active', 'bg-blue-50', 'text-blue-600'));
+            navLinks.forEach(nl => nl.classList.add('text-gray-600', 'hover:text-blue-600', 'hover:bg-blue-50'));
+            
+            // Add active class to clicked link
+            this.classList.add('active', 'bg-blue-50', 'text-blue-600');
+            this.classList.remove('text-gray-600', 'hover:text-blue-600', 'hover:bg-blue-50');
+            
+            // Hide all sections
+            sections.forEach(section => section.classList.add('hidden'));
+            
+            // Show target section
+            const targetId = this.getAttribute('href').substring(1);
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+        });
+    });
+
+    // Edit functionality for profile form
+    const editBtn = document.querySelector('.edit-btn');
+    const cancelBtn = document.querySelector('.cancel-btn');
+    const profileForm = document.getElementById('profile-form');
+    const profileActions = document.getElementById('profile-actions');
+    const formInputs = profileForm.querySelectorAll('input, textarea');
+
+    editBtn.addEventListener('click', function() {
+        formInputs.forEach(input => {
+            input.removeAttribute('readonly');
+            input.classList.add('bg-white');
+        });
+        profileActions.classList.remove('hidden');
+        editBtn.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', function() {
+        formInputs.forEach(input => {
+            input.setAttribute('readonly', '');
+            input.classList.remove('bg-white');
+        });
+        profileActions.classList.add('hidden');
+        editBtn.style.display = 'inline-flex';
+    });
+
+    // Initialize active states
+    const firstNavLink = navLinks[0];
+    firstNavLink.classList.add('active', 'bg-blue-50', 'text-blue-600');
+    firstNavLink.classList.remove('text-gray-600', 'hover:text-blue-600', 'hover:bg-blue-50');
+    
+    // Add default styles to other nav links
+    navLinks.forEach((link, index) => {
+        if (index > 0) {
+            link.classList.add('text-gray-600', 'hover:text-blue-600', 'hover:bg-blue-50');
+        }
+    });
+});
+</script>
+
+<style>
+.profile-nav-link.active {
+    background-color: #EBF8FF;
+    color: #2563EB;
+}
+</style>
+{% endblock %}

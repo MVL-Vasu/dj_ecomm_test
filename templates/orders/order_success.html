@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmation - TechStore{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50 min-h-screen py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Success Message -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center mb-8">
+            <div class="w-20 h-20 mx-auto mb-6 bg-green-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-check text-3xl text-green-600"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-4">Order Placed Successfully!</h1>
+            <p class="text-lg text-gray-600 mb-6">
+                Thank you for your order. We've received your payment and will begin processing your order shortly.
+            </p>
+            <div class="bg-blue-50 rounded-lg p-4 inline-block">
+                <p class="text-sm text-blue-800">
+                    <strong>Order Number:</strong> #{{ order.order_number|slice:":8" }}...
+                </p>
+                <p class="text-sm text-blue-800 mt-1">
+                    <strong>Order Total:</strong> ${{ order.total_amount }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Progress Timeline -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">What happens next?</h2>
+            <div class="space-y-6">
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Order Confirmation</h3>
+                        <p class="text-sm text-gray-600">Your order has been received and confirmed</p>
+                        <p class="text-xs text-green-600 font-medium">✓ Completed</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Processing</h3>
+                        <p class="text-sm text-gray-600">We're preparing your items for shipment</p>
+                        <p class="text-xs text-blue-600 font-medium">⏳ In Progress (1-2 business days)</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 flex-shrink-0">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Shipping</h3>
+                        <p class="text-sm text-gray-600">Your order will be shipped to your address</p>
+                        <p class="text-xs text-gray-500">⏳ Pending (3-5 business days)</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start space-x-4">
+                    <div class="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 flex-shrink-0">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900">Delivery</h3>
+                        <p class="text-sm text-gray-600">Your order will arrive at your doorstep</p>
+                        <p class="text-xs text-gray-500">⏳ Pending (5-7 business days)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Order Details</h2>
+            
+            <!-- Order Items -->
+            <div class="space-y-4">
+                {% for item in order.items.all %}
+                <div class="flex items-center space-x-4 py-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                    <div class="flex-shrink-0">
+                        {% if item.product.images.first %}
+                            <img 
+                                src="{{ item.product.images.first.image.url }}" 
+                                alt="{{ item.product_name }}"
+                                class="w-16 h-16 object-cover rounded-lg"
+                            >
+                        {% else %}
+                            <div class="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-medium text-gray-900">{{ item.product_name }}</h3>
+                        <p class="text-sm text-gray-600">Quantity: {{ item.quantity }}</p>
+                        <p class="text-sm text-gray-600">${{ item.product_price }} each</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-medium text-gray-900">${{ item.total_price }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Order Summary -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Subtotal:</span>
+                        <span>${{ order.subtotal }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Shipping:</span>
+                        <span>${{ order.shipping_cost }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600">
+                        <span>Tax:</span>
+                        <span>${{ order.tax_amount }}</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-semibold text-gray-900 pt-2 border-t border-gray-200">
+                        <span>Total:</span>
+                        <span>${{ order.total_amount }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Important Information -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8">
+            <div class="flex items-start space-x-3">
+                <i class="fas fa-info-circle text-yellow-600 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-yellow-800 mb-2">Important Information</h3>
+                    <ul class="text-sm text-yellow-700 space-y-1">
+                        <li>• A confirmation email has been sent to {{ order.billing_email }}</li>
+                        <li>• You can track your order status in your account dashboard</li>
+                        <li>• You'll receive shipping updates via email and SMS</li>
+                        <li>• Contact us if you need to make changes to your order within 1 hour</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+                href="{% url 'orders:order_detail' order.order_number %}" 
+                class="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            >
+                <i class="fas fa-eye mr-2"></i>
+                View Order Details
+            </a>
+            <a 
+                href="{% url 'products:home' %}" 
+                class="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+            >
+                <i class="fas fa-shopping-cart mr-2"></i>
+                Continue Shopping
+            </a>
+            <a 
+                href="{% url 'orders:order_history' %}" 
+                class="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+            >
+                <i class="fas fa-history mr-2"></i>
+                Order History
+            </a>
+        </div>
+
+        <!-- Support Information -->
+        <div class="mt-12 text-center">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Need Help?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <i class="fas fa-phone text-2xl text-blue-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900 mb-1">Call Us</h4>
+                    <p class="text-sm text-gray-600">(555) 123-4567</p>
+                    <p class="text-xs text-gray-500">Mon-Fri 9AM-6PM</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <i class="fas fa-envelope text-2xl text-blue-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900 mb-1">Email Us</h4>
+                    <p class="text-sm text-gray-600">support@techstore.com</p>
+                    <p class="text-xs text-gray-500">24/7 Support</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <i class="fas fa-comments text-2xl text-blue-600 mb-2"></i>
+                    <h4 class="font-medium text-gray-900 mb-1">Live Chat</h4>
+                    <p class="text-sm text-gray-600">Chat with us online</p>
+                    <p class="text-xs text-gray-500">Available 24/7</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

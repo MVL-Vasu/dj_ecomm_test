@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Categories - ShopHub{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <nav class="flex items-center space-x-2 text-sm text-gray-600 mb-8">
+        <a href="{% url 'products:home' %}" class="hover:text-primary-600">Home</a>
+        <i class="fas fa-chevron-right text-xs"></i>
+        <span class="text-gray-400">Categories</span>
+    </nav>
+
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-4">Shop by Category</h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+            Explore our wide range of products across different categories. Find exactly what you're looking for.
+        </p>
+    </div>
+
+    {% if categories %}
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for category in categories %}
+            <div class="group">
+                <a href="{{ category.get_absolute_url }}" class="block">
+                    <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 group-hover:-translate-y-2 overflow-hidden">
+                        <!-- Category Image -->
+                        <div class="aspect-square bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center p-8">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="w-full h-full object-cover rounded-lg">
+                            {% else %}
+                                <i class="fas fa-cube text-6xl text-primary-600 group-hover:scale-110 transition-transform duration-300"></i>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Category Info -->
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-800 group-hover:text-primary-600 transition-colors mb-2">
+                                {{ category.name }}
+                            </h3>
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+                                {{ category.description|default:"Explore our collection of quality products in this category." }}
+                            </p>
+                            
+                            <!-- Product Count (if available) -->
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-500">
+                                    {{ category.products.count }} product{{ category.products.count|pluralize }}
+                                </span>
+                                <div class="flex items-center text-primary-600 group-hover:text-primary-700 group-hover:translate-x-1 transition-all duration-300">
+                                    <span class="text-sm font-medium">Shop Now</span>
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Load More Button (if needed) -->
+        <div class="text-center mt-12">
+            <button class="btn bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
+                <i class="fas fa-plus mr-2"></i>Load More Categories
+            </button>
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-16">
+            <div class="max-w-md mx-auto">
+                <i class="fas fa-th-large text-8xl text-gray-300 mb-8"></i>
+                <h2 class="text-3xl font-bold text-gray-600 mb-4">No Categories Yet</h2>
+                <p class="text-gray-500 text-lg mb-8">
+                    Categories will appear here once they're added to the store.
+                </p>
+                
+                <!-- Quick Actions -->
+                <div class="space-y-4">
+                    <a href="{% url 'products:home' %}" class="btn bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg font-medium inline-flex items-center">
+                        <i class="fas fa-home mr-2"></i>Back to Home
+                    </a>
+                    <div class="flex justify-center space-x-4 text-sm">
+                        <a href="{% url 'products:product_list' %}" class="text-primary-600 hover:text-primary-700 font-medium">
+                            <i class="fas fa-shopping-bag mr-1"></i>Browse All Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Features Section -->
+    <div class="mt-16 bg-gray-50 rounded-2xl p-8">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Why Shop by Category?</h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-primary-100 rounded-full mb-4">
+                    <i class="fas fa-search text-2xl text-primary-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Easy to Find</h3>
+                <p class="text-gray-600 text-sm">Quickly locate products in your area of interest</p>
+            </div>
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                    <i class="fas fa-filter text-2xl text-green-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Better Filtering</h3>
+                <p class="text-gray-600 text-sm">Compare similar products within the same category</p>
+            </div>
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-4">
+                    <i class="fas fa-star text-2xl text-purple-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800 mb-2">Curated Selection</h3>
+                <p class="text-gray-600 text-sm">Hand-picked products in each category for quality</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

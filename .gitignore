@@ -1,0 +1,39 @@
+# Django
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Node.js
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Tailwind CSS output
+static/css/output.css
