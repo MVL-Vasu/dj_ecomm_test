@@ -16,11 +16,11 @@
         "distDir": "staticfiles"
       }
     }
-  ],
+  ], 
   "routes": [
     {
       "src": "/static/(.*)",
-      "dest": "/static/$1"
+      "dest": "/staticfiles/$1"
     },
     {
       "src": "/(.*)",
