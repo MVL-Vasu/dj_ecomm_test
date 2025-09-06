@@ -1,11 +1,12 @@
 echo "BUILD START"
 
+# Install dependencies
 python3 -m pip install -r requirements.txt
-python3 manage.py migrate --noinput
-python3 manage.py collectstatic --noinput --clear
 
-# 👇 Add this to debug what files are in staticfiles
-echo "---- STATICFILES CONTENT ----"
-ls -R staticfiles
+# Run migrations
+python3 manage.py migrate --noinput
+
+# Collect all static files (admin CSS/JS too)
+python3 manage.py collectstatic --noinput --clear
 
 echo "BUILD END"
